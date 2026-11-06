@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SafeVault — Decentralized Multisignature Treasury Protocol</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy: #0d2a4a;
+    --blue: #1e4080;
+    --accent: #3b82f6;
+    --gold: #f59e0b;
+    --text: #1a1a2e;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --bg-alt: #f8fafc;
+  }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 11pt;
+    line-height: 1.7;
+    color: var(--text);
+    background: #fff;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2.5cm;
+  }
+
+  @page {
+    size: A4;
+    margin: 2.5cm;
+    @bottom-right { content: "Page " counter(page) " of " counter(pages); font-size: 9pt; color: #999; }
+  }
+
+  /* Title Page */
+  .title-page {
+    text-align: center;
+    min-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    page-break-after: always;
+    border-bottom: 3px solid var(--navy);
+    padding-bottom: 2rem;
+  }
+  .title-page .logo-mark {
+    width: 80px; height: 80px;
+    background: var(--navy);
+    border-radius: 20px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.5rem;
+    margin: 0 auto 2rem;
+  }
+  .title-page h1 { font-size: 2.8rem; font-weight: 700; color: var(--navy); margin-bottom: 0.5rem; }
+  .title-page .subtitle { font-size: 1.3rem; color: var(--blue); font-weight: 400; margin-bottom: 2rem; }
+  .title-page .meta { font-size: 0.9rem; color: var(--muted); line-height: 2; }
+  .title-page .version-badge {
+    display: inline-block;
+    background: var(--navy); color: #fff;
+    padding: 0.3rem 1rem; border-radius: 20px;
+    font-size: 0.85rem; font-weight: 600;
+    margin-bottom: 1rem;
+  }
+  .abstract {
+    background: var(--bg-alt);
+    border-left: 4px solid var(--accent);
+    padding: 1.5rem 2rem;
+    margin-top: 2rem;
+    text-align: left;
+    border-radius: 0 8px 8px 0;
+    font-size: 0.95rem;
+    max-width: 700px;
+  }
+  .abstract strong { color: var(--navy); }
+
+  /* TOC */
+  .toc { page-break-after: always; }
+  .toc h2 { font-size: 1.6rem; color: var(--navy); border-bottom: 2px solid var(--navy); padding-bottom: 0.5rem; margin-bottom: 1.5rem; }
+  .toc ol { counter-reset: toc-item; list-style: none; }
+  .toc > ol > li { counter-increment: toc-item; margin-bottom: 0.4rem; }
+  .toc > ol > li::before { content: counter(toc-item) ". "; font-weight: 600; color: var(--navy); }
+  .toc a { color: var(--text); text-decoration: none; }
+  .toc a:hover { color: var(--accent); }
+  .toc .toc-dots { display: flex; align-items: center; gap: 0.5rem; }
+  .toc .page-ref { margin-left: auto; color: var(--muted); font-size: 0.85rem; }
+  .toc ol ol { margin-left: 1.5rem; margin-top: 0.3rem; list-style: lower-alpha; color: var(--muted); font-size: 0.9rem; }
+
+  /* Headings */
+  h1 { font-size: 2rem; color: var(--navy); margin: 2rem 0 1rem; }
+  h2 { font-size: 1.5rem; color: var(--navy); border-bottom: 2px solid var(--border); padding-bottom: 0.4rem; margin: 2.5rem 0 1rem; page-break-after: avoid; }
+  h3 { font-size: 1.15rem; color: var(--blue); margin: 1.8rem 0 0.6rem; page-break-after: avoid; }
+  h4 { font-size: 1rem; color: var(--text); font-weight: 600; margin: 1.2rem 0 0.4rem; }
+
+  p { margin-bottom: 0.9rem; }
+  ul, ol { margin: 0.5rem 0 0.9rem 1.5rem; }
+  li { margin-bottom: 0.3rem; }
+
+  /* Code */
+  pre, code { font-family: 'Courier New', monospace; font-size: 0.85rem; }
+  pre {
+    background: #0d2a4a;
+    color: #e2e8f0;
+    padding: 1.2rem 1.5rem;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 1rem 0 1.2rem;
+    page-break-inside: avoid;
+  }
+  code { background: #f1f5f9; color: #c0392b; padding: 0.15rem 0.4rem; border-radius: 3px; }
+  pre code { background: none; color: inherit; padding: 0; }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0 1.5rem; font-size: 0.9rem; page-break-inside: avoid; }
+  th { background: var(--navy); color: #fff; padding: 0.7rem 1rem; text-align: left; font-weight: 600; }
+  td { padding: 0.6rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tr:nth-child(even) td { background: var(--bg-alt); }
+
+  /* Callouts */
+  .callout { border-left: 4px solid var(--accent); background: #eff6ff; padding: 1rem 1.5rem; margin: 1rem 0; border-radius: 0 6px 6px 0; page-break-inside: avoid; }
+  .callout.warning { border-color: var(--gold); background: #fffbeb; }
+  .callout.danger { border-color: #ef4444; background: #fef2f2; }
+  .callout strong { display: block; margin-bottom: 0.3rem; }
+
+  /* State machine diagram */
+  .diagram {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    font-family: monospace;
+    font-size: 0.85rem;
+    white-space: pre;
+    page-break-inside: avoid;
+  }
+
+  /* Section divider */
+  .section { page-break-before: auto; margin-bottom: 2rem; }
+  .section-num { color: var(--accent); font-weight: 700; margin-right: 0.4rem; }
+
+  footer { margin-top: 4rem; border-top: 1px solid var(--border); padding-top: 1rem; font-size: 0.8rem; color: var(--muted); text-align: center; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════
+     TITLE PAGE
+═══════════════════════════════════════════════ -->
+<div class="title-page">
+  <div class="logo-mark">🔐</div>
+  <div class="version-badge">Version 1.0 — BOT Chain</div>
+  <h1>SafeVault</h1>
+  <p class="subtitle">Decentralized Multisignature Treasury Protocol</p>
+  <div class="meta">
+    <div>Network: BOT Chain (Chain ID 677)</div>
+    <div>Stack: Solidity ^0.8.20 · ethers.js v6 · Vanilla JS</div>
+    <div>Published: November 2026</div>
+  </div>
+  <div class="abstract">
+    <strong>Abstract.</strong> SafeVault is a non-custodial, on-chain multisignature treasury management protocol built on BOT Chain. It enables DAOs, startups, and project teams to collectively control treasury funds using configurable M-of-N approval thresholds. All proposals, approvals, and executions are recorded on-chain with no privileged backdoors. This document describes the protocol architecture, multisig logic, threat model, governance flows, and security assumptions.
+  </div>
+</div>
+
+<!-- TOC -->
+<div class="toc">
+  <h2>Table of Contents</h2>
+  <ol>
+    <li><a href="#s1">Executive Summary</a></li>
+    <li><a href="#s2">Protocol Architecture</a>
+      <ol>
+        <li>System Overview</li>
+        <li>Contract Hierarchy</li>
+        <li>Data Flow</li>
+      </ol>
+    </li>
+    <li><a href="#s3">Multisig Logic &amp; Approval Thresholds</a>
+      <ol>
+        <li>Threshold Mathematics</li>
+        <li>Edge Cases</li>
+      </ol>
+    </li>
+    <li><a href="#s4">Proposal Lifecycle</a>
+      <ol>
+        <li>Proposal Types</li>
+        <li>State Machine</li>
+        <li>Execution Flow</li>
+      </ol>
+    </li>
+    <li><a href="#s5">Governance &amp; Signer Management</a></li>
+    <li><a href="#s6">Token Support</a></li>
+    <li><a href="#s7">Threat Model</a></li>
+    <li><a href="#s8">Security Architecture</a></li>
+    <li><a href="#s9">Deployment Guide Summary</a></li>
+    <li><a href="#s10">Roadmap</a></li>
+    <li><a href="#s11">Glossary</a></li>
+  </ol>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<div class="section" id="s1">
+<h2><span class="section-num">1.</span> Executive Summary</h2>
+<p>SafeVault provides shared custody of on-chain assets without requiring any trusted third party. A group of signers — identified by their wallet addresses — collectively governs a vault by proposing, approving, and executing transactions. No single signer can move funds unilaterally.</p>
+<p>Key properties:</p>
+<ul>
+  <li><strong>Non-custodial.</strong> Funds are held by the vault contract itself, not by any individual or service.</li>
+  <li><strong>Configurable thresholds.</strong> Teams set their own M-of-N requirement at vault creation; this can be changed only through the proposal system.</li>
+  <li><strong>No admin backdoor.</strong> The deployer of VaultFactory has no special power over individual vaults. Signers govern exclusively through proposals.</li>
+  <li><strong>Transparent audit trail.</strong> Every proposal, approval, rejection, and execution is permanently recorded on BOT Chain and emits a queryable event.</li>
+  <li><strong>BOT and ERC-20 support.</strong> Vaults hold and transfer both native BOT and arbitrary ERC-20 tokens using SafeERC20.</li>
+</ul>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<div class="section" id="s2">
+<h2><span class="section-num">2.</span> Protocol Architecture</h2>
+
+<h3>2.1 System Overview</h3>
+<p>SafeVault consists of four smart contracts and a fully client-side HTML/JS frontend. No server infrastructure is required after deployment.</p>
+
+<table>
+  <thead><tr><th>Contract</th><th>Role</th></tr></thead>
+  <tbody>
+    <tr><td><code>VaultFactory</code></td><td>Deploys new MultiSigVault instances, tracks all vaults globally</td></tr>
+    <tr><td><code>MultiSigVault</code></td><td>Core vault: holds funds, manages proposals, enforces thresholds</td></tr>
+    <tr><td><code>SignerRegistry</code></td><td>Denormalized signer lookup for frontend queries</td></tr>
+    <tr><td><code>ProposalManager</code></td><td>Read-only query helper: paginated proposals, pending approvals per signer</td></tr>
+  </tbody>
+</table>
+
+<h3>2.2 Contract Hierarchy</h3>
+<div class="diagram">
+VaultFactory
+ └─ creates ──► MultiSigVault (one per team)
+                 ├─ holds BOT (native) + ERC-20 tokens
+                 ├─ Proposal[] proposals
+                 ├─ address[] signers
+                 └─ uint256 threshold
+
+SignerRegistry   ◄── updated by VaultFactory on vault creation / signer changes
+ProposalManager  ◄── reads MultiSigVault state for paginated queries
+</div>
+
+<h3>2.3 Data Flow</h3>
+<p>When a user interacts with the frontend:</p>
+<ol>
+  <li>The browser connects to BOT Chain via MetaMask (ethers.js v6).</li>
+  <li>VaultFactory is queried for vaults associated with the connected address.</li>
+  <li>The selected MultiSigVault is queried directly for balances, signers, and proposals.</li>
+  <li>Write operations (propose, approve, execute) send signed transactions to the MultiSigVault.</li>
+  <li>Events emitted by the contract update the UI without any backend indexer.</li>
+</ol>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<div class="section" id="s3">
+<h2><span class="section-num">3.</span> Multisig Logic &amp; Approval Thresholds</h2>
+
+<h3>3.1 Threshold Mathematics</h3>
+<p>A vault requires at least <strong>M</strong> approvals out of <strong>N</strong> registered signers to execute any proposal. The threshold M must satisfy:</p>
+<pre><code>1 ≤ M ≤ N</code></pre>
+<p>Common configurations:</p>
+<table>
+  <thead><tr><th>Config</th><th>Signers (N)</th><th>Required (M)</th><th>Use Case</th></tr></thead>
+  <tbody>
+    <tr><td>2-of-3</td><td>3</td><td>2</td><td>Small team, one backup signer</td></tr>
+    <tr><td>3-of-5</td><td>5</td><td>3</td><td>DAO committee, tolerates 2 absences</td></tr>
+    <tr><td>4-of-7</td><td>7</td><td>4</td><td>Large DAO, strong decentralization</td></tr>
+    <tr><td>2-of-2</td><td>2</td><td>2</td><td>Joint account, both must agree</td></tr>
+  </tbody>
+</table>
+
+<h3>3.2 Edge Cases</h3>
+<ul>
+  <li><strong>Signer removal below threshold:</strong> Removing a signer is only possible through a governance proposal that also adjusts the threshold if necessary. The contract rejects any signer removal that would make the threshold unreachable.</li>
+  <li><strong>All signers approve:</strong> If all N signers approve, the proposal executes at the M-th approval — no need to wait for the remaining approvals.</li>
+  <li><strong>Duplicate approval:</strong> The contract records per-signer approval status and reverts if the same signer attempts to approve twice.</li>
+  <li><strong>Threshold change:</strong> Modifying the threshold is itself a proposal that requires the current threshold to be met before taking effect.</li>
+</ul>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<div class="section" id="s4">
+<h2><span class="section-num">4.</span> Proposal Lifecycle</h2>
+
+<h3>4.1 Proposal Types</h3>
+<table>
+  <thead><tr><th>Type</th><th>Description</th></tr></thead>
+  <tbody>
+    <tr><td>Transfer (BOT)</td><td>Send native BOT from vault to any address</td></tr>
+    <tr><td>Transfer (ERC-20)</td><td>Send ERC-20 tokens using SafeERC20.safeTransfer</td></tr>
+    <tr><td>Contract Call</td><td>Arbitrary calldata execution (DeFi interactions, NFT operations)</td></tr>
+    <tr><td>Add Signer</td><td>Register a new wallet as a vault signer</td></tr>
+    <tr><td>Remove Signer</td><td>Deregister a signer; threshold automatically adjusted if needed</td></tr>
+    <tr><td>Change Threshold</td><td>Update M while keeping the signer set unchanged</td></tr>
+  </tbody>
+</table>
+
+<h3>4.2 State Machine</h3>
+<div class="diagram">
+                      ┌─────────────────────────────┐
+                      │          CREATED             │
+                      │  (by any signer)             │
+                      └────────────┬────────────────┘
+                                   │
+              ┌────────────────────┼─────────────────────┐
+              ▼                    ▼                      ▼
+        [Approve]           [Reject ×(N-M+1)]      [Cancel by proposer]
+              │                    │                      │
+              ▼                    ▼                      ▼
+    ┌─────────────────┐  ┌──────────────────┐   ┌──────────────────┐
+    │  PENDING         │  │    DEFEATED      │   │   CANCELLED      │
+    │ (approvals < M)  │  │ (cannot execute) │   │ (before execute) │
+    └────────┬────────┘  └──────────────────┘   └──────────────────┘
+             │
+      [M-th approval]
+             │
+             ▼
+    ┌─────────────────┐
+    │   EXECUTABLE    │
+    │ (threshold met) │
+    └────────┬────────┘
+             │
+      [execute()]
+             │
+             ▼
+    ┌─────────────────┐
+    │    EXECUTED      │
+    │  (final state)  │
+    └─────────────────┘
+</div>
+
+<h3>4.3 Execution Flow</h3>
+<p>The execute function follows the checks-effects-interactions pattern strictly:</p>
+<pre><code>function execute(uint256 proposalId) external nonReentrant onlySigner {
+  Proposal storage p = proposals[proposalId];
+  // CHECKS
+  require(p.approvals >= threshold, "Below threshold");
+  require(!p.executed, "Already executed");
+  require(!p.cancelled, "Cancelled");
+  // EFFECTS
+  p.executed = true;
+  emit ProposalExecuted(proposalId, msg.sender);
+  // INTERACTIONS
+  if (p.token == address(0)) {
+    (bool ok,) = p.to.call{value: p.value}(p.data);
+    require(ok, "BOT transfer failed");
+  } else {
+    IERC20(p.token).safeTransfer(p.to, p.tokenAmount);
+  }
+}</code></pre>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<div class="section" id="s5">
+<h2><span class="section-num">5.</span> Governance &amp; Signer Management</h2>
+<p>All governance actions — adding signers, removing signers, changing the threshold — are implemented as proposal types. This means they go through the same M-of-N approval process as financial transactions. There is no privileged admin function that can alter vault membership without signer consensus.</p>
+
+<h3>Governance Invariants</h3>
+<ul>
+  <li>Threshold must always satisfy <code>1 ≤ threshold ≤ signers.length</code> after any signer change.</li>
+  <li>Removing a signer whose removal would make threshold unreachable is rejected at proposal execution time.</li>
+  <li>A signer can propose their own removal (voluntary exit), subject to threshold approval.</li>
+  <li>The deployer of VaultFactory receives no ongoing governance power over any vault.</li>
+</ul>
+
+<div class="callout warning">
+  <strong>⚠️ Operational Warning</strong>
+  If all signers of a vault lose access to their wallets simultaneously, the vault's funds become permanently inaccessible. Teams should maintain secure key backups and consider a recovery signer policy.
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<div class="section" id="s6">
+<h2><span class="section-num">6.</span> Token Support</h2>
+<p>SafeVault supports:</p>
+<ul>
+  <li><strong>Native BOT</strong> — deposited via <code>receive()</code> or <code>depositBOT()</code>, transferred via low-level call in proposals.</li>
+  <li><strong>Standard ERC-20 tokens</strong> — deposited via <code>depositToken(address, amount)</code>, transferred via <code>SafeERC20.safeTransfer</code> to handle non-standard return values.</li>
+</ul>
+
+<div class="callout danger">
+  <strong>🚫 Fee-on-Transfer Tokens</strong>
+  Tokens that charge a fee on transfer may credit less to the recipient than the proposal amount specifies. SafeVault does not adjust for this automatically. Teams should verify token behavior before including such assets in proposals.
+</div>
+
+<h3>Token Balance Display</h3>
+<p>The frontend reads balances using <code>getBalance()</code> (BOT) and <code>getTokenBalance(address)</code> (ERC-20). A known-tokens list is maintained in the frontend config; users can add arbitrary token addresses manually.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<div class="section" id="s7">
+<h2><span class="section-num">7.</span> Threat Model</h2>
+
+<table>
+  <thead><tr><th>Threat</th><th>Mitigation</th><th>Residual Risk</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>Reentrancy attack on execute()</td>
+      <td>ReentrancyGuard + checks-effects-interactions; state marked executed before external call</td>
+      <td>Low — standard pattern applied consistently</td>
+    </tr>
+    <tr>
+      <td>Single signer compromised</td>
+      <td>M-of-N threshold; compromised signer alone cannot execute</td>
+      <td>Medium — if M=1, all risk falls on that key</td>
+    </tr>
+    <tr>
+      <td>Signer collusion (M signers collude)</td>
+      <td>Protocol cannot prevent — this is a governance/social risk</td>
+      <td>High for small M; teams choose their own tolerance</td>
+    </tr>
+    <tr>
+      <td>Front-running execute()</td>
+      <td>Execution is idempotent once triggered; proposal marked executed before funds move</td>
+      <td>Low — race condition does not benefit attacker</td>
+    </tr>
+    <tr>
+      <td>Phishing / malicious proposal</td>
+      <td>UI shows full decoded calldata; signers must review before approving</td>
+      <td>Medium — dependent on signer diligence</td>
+    </tr>
+    <tr>
+      <td>Griefing via spam proposals</td>
+      <td>Optionally require a small BOT deposit per proposal (configurable)</td>
+      <td>Low with deposit; Medium without</td>
+    </tr>
+    <tr>
+      <td>ERC-20 token approval exploit</td>
+      <td>SafeERC20 used for all token transfers; no unchecked return values</td>
+      <td>Low</td>
+    </tr>
+    <tr>
+      <td>Contract interaction proposals (arbitrary calldata)</td>
+      <td>Signers see decoded calldata in UI; execution requires threshold approval</td>
+      <td>Medium — depends on signer review quality</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<div class="section" id="s8">
+<h2><span class="section-num">8.</span> Security Architecture</h2>
+
+<h3>8.1 Access Control</h3>
+<table>
+  <thead><tr><th>Function</th><th>Permitted Callers</th></tr></thead>
+  <tbody>
+    <tr><td>propose()</td><td>Registered signers only</td></tr>
+    <tr><td>approve() / reject()</td><td>Registered signers only; once per signer per proposal</td></tr>
+    <tr><td>execute()</td><td>Any signer after threshold met; nonReentrant</td></tr>
+    <tr><td>cancel()</td><td>Proposer or vault itself (via governance proposal)</td></tr>
+    <tr><td>depositBOT()</td><td>Anyone (receive() is public)</td></tr>
+    <tr><td>depositToken()</td><td>Anyone (caller approves ERC-20 first)</td></tr>
+    <tr><td>pause() / unpause()</td><td>VaultFactory owner only (emergency use)</td></tr>
+  </tbody>
+</table>
+
+<h3>8.2 Invariants</h3>
+<ul>
+  <li>A proposal cannot be both executed and cancelled.</li>
+  <li>A signer's approval is recorded as a boolean — the contract cannot double-count.</li>
+  <li>The threshold can never exceed the number of registered signers.</li>
+  <li>BOT is transferred using low-level <code>call</code> with return value checked; never <code>transfer</code> or <code>send</code>.</li>
+</ul>
+
+<h3>8.3 Pause Mechanism</h3>
+<p>The VaultFactory owner can invoke a global pause that halts new vault creation. Individual vaults may implement their own pause via a governance proposal. The pause mechanism is intended for emergency response only and does not grant the owner access to vault funds.</p>
+
+<h3>8.4 Audit Recommendations</h3>
+<div class="callout">
+  <strong>ℹ️ Pre-mainnet Audit</strong>
+  Before deploying SafeVault to manage significant treasury funds, a third-party Solidity audit is strongly recommended, with particular focus on: reentrancy in execute(), the signer management governance loop, and ERC-20 handling edge cases.
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<div class="section" id="s9">
+<h2><span class="section-num">9.</span> Deployment Guide Summary</h2>
+<p>See <code>deploy.md</code> for the complete step-by-step guide. In summary:</p>
+<ol>
+  <li>Install Hardhat, OpenZeppelin, and dotenv.</li>
+  <li>Configure <code>hardhat.config.js</code> for BOT Chain (chainId 677, RPC <code>https://rpc.botchain.tg</code>).</li>
+  <li>Deploy in order: <strong>SignerRegistry → ProposalManager → VaultFactory</strong>.</li>
+  <li>Verify all contracts on the BOT Chain explorer.</li>
+  <li>Update the <code>CONFIG</code> block in <code>index.html</code> with deployed addresses.</li>
+  <li>Serve <code>index.html</code> from any static host (GitHub Pages, IPFS, Cloudflare Pages).</li>
+</ol>
+<p>Estimated deployment cost: ~1–3 BOT for all three contracts at standard gas prices.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<div class="section" id="s10">
+<h2><span class="section-num">10.</span> Roadmap</h2>
+<table>
+  <thead><tr><th>Phase</th><th>Features</th></tr></thead>
+  <tbody>
+    <tr><td>v1.0 (Current)</td><td>Vault creation, M-of-N proposals, BOT + ERC-20 transfers, contract calls, signer management, governance proposals</td></tr>
+    <tr><td>v1.1</td><td>Proposal deadlines enforcement, time-lock delay on execution, proposal deposit/spam prevention</td></tr>
+    <tr><td>v2.0</td><td>Spending limits (daily/weekly caps without proposals), role-based access (executor vs approver), sub-accounts</td></tr>
+    <tr><td>v2.1</td><td>Native BOT Chain token registry integration, multi-vault portfolio view, CSV export of transaction history</td></tr>
+    <tr><td>v3.0</td><td>Cross-vault proposals, treasury analytics dashboard, on-chain notifications via events + push protocol</td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<div class="section" id="s11">
+<h2><span class="section-num">11.</span> Glossary</h2>
+<table>
+  <thead><tr><th>Term</th><th>Definition</th></tr></thead>
+  <tbody>
+    <tr><td>M-of-N</td><td>An approval threshold requiring M signatures from a set of N registered signers</td></tr>
+    <tr><td>Vault</td><td>An instance of MultiSigVault that holds funds and enforces governance</td></tr>
+    <tr><td>Signer</td><td>A wallet address authorized to propose, approve, reject, and execute within a vault</td></tr>
+    <tr><td>Proposal</td><td>An on-chain request to perform an action, subject to threshold approval</td></tr>
+    <tr><td>Threshold</td><td>The minimum number of approvals required to execute a proposal</td></tr>
+    <tr><td>Checks-Effects-Interactions</td><td>A Solidity security pattern: validate first, update state second, make external calls last</td></tr>
+    <tr><td>ReentrancyGuard</td><td>OpenZeppelin contract that prevents reentrant calls to guarded functions</td></tr>
+    <tr><td>SafeERC20</td><td>OpenZeppelin library for safe ERC-20 interactions with non-standard return values</td></tr>
+    <tr><td>Governance Proposal</td><td>A proposal whose execution changes vault configuration rather than moving funds</td></tr>
+    <tr><td>Non-custodial</td><td>No third party holds or can access the funds — only the vault contract and its governance rules do</td></tr>
+    <tr><td>VaultFactory</td><td>The singleton contract that deploys and tracks all SafeVault instances</td></tr>
+    <tr><td>Calldata</td><td>Encoded function call bytes sent to a target contract in a Contract Call proposal</td></tr>
+  </tbody>
+</table>
+</div>
+
+<footer>
+  SafeVault — Decentralized Multisignature Treasury Protocol · BOT Chain (Chain ID 677) · Version 1.0 · November 2026<br>
+  This document is provided for informational purposes. No warranty is made regarding the fitness or security of the described protocol without independent audit.
+</footer>
+</body>
+</html>
